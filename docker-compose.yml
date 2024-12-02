@@ -1,0 +1,9 @@
+services:
+  chatservice:
+    image: ${DOCKER_REGISTRY-}chatservice
+    build:
+      context: .
+      dockerfile: ChatService/Dockerfile
+    ports:
+      - 5230:8080
+      - 5231:8081
