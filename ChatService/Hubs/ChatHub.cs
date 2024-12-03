@@ -20,9 +20,10 @@ public class ChatHub : Hub
 
     public async Task JoinSpecificChatRoom(UserConnection connection)
     {
+        await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
+
         _shared.connections[Context.ConnectionId] = connection;
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
         await Clients.Group(connection.ChatRoom).SendAsync("JoinSpecificChatRoom", "admin", $"{connection.Username} has joined");
     }
 
@@ -32,5 +33,11 @@ public class ChatHub : Hub
         {
             await Clients.Group(connection.ChatRoom).SendAsync("ReceiveSpecificMessage", connection.Username, message);
         }
+    }
+
+    public async Task Typing(string chatRoom, string username)
+    {
+        // Notify others in the same chat room that this user is typing
+        await Clients.Group(chatRoom).SendAsync("UserTyping", username);
     }
 }
