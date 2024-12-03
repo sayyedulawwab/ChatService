@@ -22,7 +22,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSingleton<SharedDb>();
+builder.Services.AddStackExchangeRedisCache(redisOptions => {
+
+    string connection = builder.Configuration.GetConnectionString("Redis");
+
+    redisOptions.Configuration = connection;
+});
+
+builder.Services.AddSingleton<ICacheRepository, CacheRepository>();
 
 var app = builder.Build();
 

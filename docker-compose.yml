@@ -7,3 +7,9 @@ services:
     ports:
       - 5230:8080
       - 5231:8081
+  cache-redis:
+    image: redis:latest
+    container_name:  cache-redis
+    restart: always
+    ports:
+      - 6379:6379  
