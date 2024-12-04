@@ -1,4 +1,4 @@
-﻿namespace ChatService.Infrastructure;
+﻿namespace ChatService.Infrastructure.Repositories;
 
 public interface ICacheRepository
 {

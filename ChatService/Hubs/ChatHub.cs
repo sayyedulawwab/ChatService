@@ -1,5 +1,5 @@
-﻿using ChatService.Domain.Entities;
-using ChatService.Infrastructure;
+﻿using ChatService.Domain.Users;
+using ChatService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 

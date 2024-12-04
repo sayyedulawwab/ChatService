@@ -1,10 +1,11 @@
+using ChatService;
+using ChatService.Extensions;
 using ChatService.Hubs;
-using ChatService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSignalR();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -22,14 +23,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddStackExchangeRedisCache(redisOptions => {
-
-    string connection = builder.Configuration.GetConnectionString("Redis");
-
-    redisOptions.Configuration = connection;
-});
-
-builder.Services.AddSingleton<ICacheRepository, CacheRepository>();
 
 var app = builder.Build();
 
@@ -38,6 +31,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+
+    app.ApplyMigrations();
 }
 
 //app.UseHttpsRedirection();

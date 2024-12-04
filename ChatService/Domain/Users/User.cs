@@ -1,4 +1,4 @@
-﻿namespace ChatService.Domain.Entities;
+﻿namespace ChatService.Domain.Users;
 
 public class User
 {
@@ -10,7 +10,7 @@ public class User
         CreatedOn = createdOn;
     }
 
-    public int Id { get; private set; }
+    public long Id { get; private set; }
     public string Name { get; private set; }
     public string Email { get; private set; }
     public string PasswordHash { get; private set; }

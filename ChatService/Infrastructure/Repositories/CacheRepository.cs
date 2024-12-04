@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace ChatService.Infrastructure;
+namespace ChatService.Infrastructure.Repositories;
 
 public class CacheRepository : ICacheRepository
 {
