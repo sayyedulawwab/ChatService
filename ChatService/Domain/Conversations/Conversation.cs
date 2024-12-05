@@ -8,7 +8,7 @@ public class Conversation
     [BsonId]
     [BsonRepresentation(BsonType.String)]
     public string Id { get; set; }
-    public long RoomId { get; set; }
+    public long? RoomId { get; set; }
     public List<long> Participants { get; set; }
     public bool IsGroup { get; set; }
     public DateTime CreatedOn { get; set; }

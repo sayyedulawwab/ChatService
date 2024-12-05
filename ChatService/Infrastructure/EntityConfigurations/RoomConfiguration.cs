@@ -20,8 +20,6 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
 
         builder.Property(room => room.PasswordHash);
 
-        builder.Property(category => category.CreatedBy);
-
         builder.Property(category => category.CreatedOn)
                .HasDefaultValueSql("GetUtcDate()");
     }

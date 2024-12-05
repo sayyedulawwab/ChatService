@@ -2,4 +2,4 @@
 
 namespace ChatService.Application.Rooms.CreateRoom;
 
-public record CreateRoomCommand(string name, string password, long createdBy) : ICommand<long>;
+public record CreateRoomCommand(string name, string password, long userId) : ICommand<long>;

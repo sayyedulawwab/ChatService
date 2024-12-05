@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using ChatService.Application.Abstractions.Caching;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace ChatService.Infrastructure.Repositories;
+namespace ChatService.Infrastructure.Caching;
 
 public class CacheRepository : ICacheRepository
 {

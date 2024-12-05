@@ -1,5 +1,5 @@
-﻿using ChatService.Domain.Users;
-using ChatService.Infrastructure.Repositories;
+﻿using ChatService.Application.Abstractions.Caching;
+using ChatService.Domain.Users;
 using Microsoft.AspNetCore.SignalR;
 using StackExchange.Redis;
 

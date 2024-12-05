@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using ChatService.Domain.Users;
 using Microsoft.EntityFrameworkCore;
-using ChatService.Domain.Users;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ChatService.Infrastructure.EntityConfigurations;
 
@@ -25,5 +25,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.CreatedOn)
                .HasDefaultValueSql("GetUtcDate()");
+
+        builder.HasIndex(user => user.Email).IsUnique();
     }
 }
