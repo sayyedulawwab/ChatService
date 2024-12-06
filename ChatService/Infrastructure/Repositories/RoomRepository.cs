@@ -24,7 +24,7 @@ internal sealed class RoomRepository : IRoomRepository
         return room;
     }
 
-    public async Task<Room?> GetByIdWitMembers(long id)
+    public async Task<Room?> GetByIdWithMembers(long id)
     {
         var room = await _dbContext.Set<Room>()
             .Include(room => room.Members)

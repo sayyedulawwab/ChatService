@@ -14,10 +14,6 @@ public class ChatHub : Hub
         _cacheRepository = cacheRepository;
     }
 
-    public async Task JoinChat(UserConnection connection)
-    {
-        await Clients.All.SendAsync("ReceiveMessage", "admin", $"{connection.Username} has joined");
-    }
 
     public async Task JoinSpecificChatRoom(UserConnection connection)
     {
@@ -50,11 +46,11 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task<List<object>> GetChatHistory(string chatRoom)
-    {
-        // Fetch chat history for the room
-        return await _cacheRepository.GetListAsync<object>($"chatroom-{chatRoom}");
-    }
+    //public async Task<List<object>> GetChatHistory(string chatRoom)
+    //{
+    //    // Fetch chat history for the room
+    //    return await _cacheRepository.GetListAsync<object>($"chatroom-{chatRoom}");
+    //}
 
     public async Task Typing(string chatRoom, string username)
     {

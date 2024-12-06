@@ -41,22 +41,12 @@ namespace ChatService.Migrations
                     b.Property<long>("RoomId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("RoomId1")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("UserId1")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
-
-                    b.HasIndex("RoomId1");
-
-                    b.HasIndex("UserId1");
 
                     b.HasIndex("UserId", "RoomId")
                         .IsUnique();
@@ -129,30 +119,16 @@ namespace ChatService.Migrations
             modelBuilder.Entity("ChatService.Domain.Rooms.Member", b =>
                 {
                     b.HasOne("ChatService.Domain.Rooms.Room", null)
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("ChatService.Domain.Rooms.Room", "Room")
                         .WithMany("Members")
-                        .HasForeignKey("RoomId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ChatService.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("ChatService.Domain.Users.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("Room");
 
                     b.Navigation("User");
                 });

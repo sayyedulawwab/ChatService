@@ -23,9 +23,9 @@ public class Room
         return room;
     }
 
-    public void AddMember(long userId, long roomId, DateTime joinedOn)
+    public void AddMember(long userId, long roomId, Role role, DateTime joinedOn)
     {
-        var member = Member.Create(userId, roomId, joinedOn);
+        var member = Member.Create(userId, roomId, role, joinedOn);
 
         Members.Add(member);
     }

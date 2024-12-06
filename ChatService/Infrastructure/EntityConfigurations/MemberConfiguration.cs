@@ -28,13 +28,13 @@ public class MemberConfiguration : IEntityTypeConfiguration<Member>
         builder.HasIndex(member => new { member.UserId, member.RoomId })
                .IsUnique();
 
-        builder.HasOne<User>()
+        builder.HasOne<User>(member => member.User)
                .WithMany()
                .HasForeignKey(member => member.UserId)
                .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne<Room>()
-               .WithMany()
+               .WithMany(room => room.Members)
                .HasForeignKey(member => member.RoomId)
                .OnDelete(DeleteBehavior.NoAction);
     }

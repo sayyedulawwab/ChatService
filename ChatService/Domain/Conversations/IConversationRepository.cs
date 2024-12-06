@@ -2,7 +2,15 @@
 
 public interface IConversationRepository
 {
-    void Add(Conversation conversation);
-    void Update(Conversation conversation);
-    void Remove(Conversation conversation);
+    Task AddAsync(Conversation conversation);
+    Task UpdateAsync(Conversation conversation);
+    Task RemoveAsync(Conversation conversation);
+
+    Task<Conversation> GetByRoomId(long roomId);
+
+    Task<Conversation> GetByParticipantIds(List<long> participantIds);
+
+    Task AddMessageAsync(Message message);
+    Task UpdateMessageAsync(Message message);
+    Task RemoveMessageAsync(Message message);
 }

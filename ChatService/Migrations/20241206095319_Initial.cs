@@ -51,9 +51,7 @@ namespace ChatService.Migrations
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     RoomId = table.Column<long>(type: "bigint", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
-                    JoinedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GetUtcDate()"),
-                    UserId1 = table.Column<long>(type: "bigint", nullable: false),
-                    RoomId1 = table.Column<long>(type: "bigint", nullable: false)
+                    JoinedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GetUtcDate()")
                 },
                 constraints: table =>
                 {
@@ -64,22 +62,10 @@ namespace ChatService.Migrations
                         principalTable: "Rooms",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Members_Rooms_RoomId1",
-                        column: x => x.RoomId1,
-                        principalTable: "Rooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Members_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Members_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -88,20 +74,10 @@ namespace ChatService.Migrations
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Members_RoomId1",
-                table: "Members",
-                column: "RoomId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Members_UserId_RoomId",
                 table: "Members",
                 columns: new[] { "UserId", "RoomId" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Members_UserId1",
-                table: "Members",
-                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",

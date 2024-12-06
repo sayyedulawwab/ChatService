@@ -28,7 +28,7 @@ internal sealed class CreateRoomCommandHandler : ICommandHandler<CreateRoomComma
 
         var room = Room.Create(request.name, hashedPassword, _dateTimeProvider.UtcNow);
 
-        room.AddMember(request.userId, room.Id, _dateTimeProvider.UtcNow);
+        room.AddMember(request.userId, room.Id, Role.Admin, _dateTimeProvider.UtcNow);
 
         _roomRepository.Add(room);
 

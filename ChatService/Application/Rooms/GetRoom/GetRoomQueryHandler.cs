@@ -14,7 +14,7 @@ internal sealed class GetRoomQueryHandler : IQueryHandler<GetRoomQuery, RoomResp
 
     public async Task<Result<RoomResponse>> Handle(GetRoomQuery request, CancellationToken cancellationToken)
     {
-        var room = await _roomRepository.GetByIdWitMembers(request.roomId);
+        var room = await _roomRepository.GetByIdWithMembers(request.roomId);
 
         if (room is null)
         {
