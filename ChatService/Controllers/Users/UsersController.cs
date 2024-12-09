@@ -20,16 +20,14 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<IActionResult> Register(
-        RegisterUserRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Register(RegisterUserRequest request)
     {
         var command = new RegisterUserCommand(
             request.name,
             request.email,
             request.password);
 
-        var result = await _sender.Send(command, cancellationToken);
+        var result = await _sender.Send(command);
 
         if (result.IsFailure)
         {
@@ -41,13 +39,11 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
-        LoginUserRequest request,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Login(LoginUserRequest request)
     {
         var query = new LoginUserQuery(request.email, request.password);
 
-        var result = await _sender.Send(query, cancellationToken);
+        var result = await _sender.Send(query);
 
         if (result.IsFailure)
         {

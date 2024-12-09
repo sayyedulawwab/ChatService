@@ -2,4 +2,4 @@
 
 namespace ChatService.Application.Conversations.CreateConversation;
 
-public record CreateConversationCommand(long? roomId, List<long> participants) : ICommand<string>;
+public record AddMessageCommand(string conversationId, long senderId, string content) : ICommand<string>;

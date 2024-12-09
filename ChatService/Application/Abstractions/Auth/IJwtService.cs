@@ -3,5 +3,5 @@
 namespace ChatService.Application.Abstractions.Auth;
 public interface IJwtService
 {
-    Result<string> GetAccessToken(string email, long userId);
+    Result<string> GetAccessToken(string name, string email, long userId);
 }

@@ -16,7 +16,7 @@ internal sealed class JwtService : IJwtService
         _jwtOptions = jwtOptions.Value;
 
     }
-    public Result<string> GetAccessToken(string email, long userId)
+    public Result<string> GetAccessToken(string name, string email, long userId)
     {
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
@@ -24,6 +24,7 @@ internal sealed class JwtService : IJwtService
         var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[] {
+                new Claim(ClaimTypes.Name, name),
                 new Claim(ClaimTypes.Email, email),
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString())
             };

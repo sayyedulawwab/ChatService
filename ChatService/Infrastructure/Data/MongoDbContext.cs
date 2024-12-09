@@ -11,6 +11,7 @@ public class MongoDbContext
     {
         var client = new MongoClient(connectionString);
         _database = client.GetDatabase(databaseName);
+        CreateIndexes();
     }
 
     public IMongoCollection<Conversation> Conversations => _database.GetCollection<Conversation>("Conversations");
@@ -19,5 +20,14 @@ public class MongoDbContext
     public IMongoCollection<TEntity> GetCollection<TEntity>(string collectionName)
     {
         return _database.GetCollection<TEntity>(collectionName);
+    }
+
+    private void CreateIndexes()
+    {
+        var conversationIndex = Builders<Conversation>.IndexKeys.Ascending(c => c.RoomId);
+        Conversations.Indexes.CreateOne(new CreateIndexModel<Conversation>(conversationIndex));
+
+        var messageIndex = Builders<Message>.IndexKeys.Ascending(m => m.ConversationId);
+        Messages.Indexes.CreateOne(new CreateIndexModel<Message>(messageIndex));
     }
 }

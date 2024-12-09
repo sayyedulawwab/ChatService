@@ -3,6 +3,7 @@ using ChatService.Application.Abstractions.Behaviors;
 using ChatService.Application.Abstractions.Caching;
 using ChatService.Application.Abstractions.Clock;
 using ChatService.Domain.Abstractions;
+using ChatService.Domain.Conversations;
 using ChatService.Domain.Rooms;
 using ChatService.Domain.Users;
 using ChatService.Infrastructure.Auth;
@@ -85,10 +86,10 @@ public static class DependencyInjection
 
         services.AddSingleton<ICacheRepository, CacheRepository>();
 
-
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoomRepository, RoomRepository>();
-
+        services.AddScoped<IConversationRepository, ConversationRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
     }
 
     private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
@@ -98,7 +99,6 @@ public static class DependencyInjection
             .AddJwtBearer();
 
         services.ConfigureOptions<JwtOptionsSetup>();
-
         services.ConfigureOptions<JwtBearerOptionsSetup>();
     }
 

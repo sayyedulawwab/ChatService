@@ -15,7 +15,7 @@ public class Conversation
 
 
     [BsonId]
-    [BsonRepresentation(BsonType.String)]
+    [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; private set; }
     public long? RoomId { get; private set; } // null for private conversation
     public List<long> Participants { get; private set; } // empty for room conversation. userid for user to user chat

@@ -9,7 +9,7 @@ public class ConversationResponse
 
 public class MessageResponse
 {
-    public long SenderId { get; init; }
+    public string SenderName { get; init; }
     public string Content { get; init; }
     public DateTime CreatedOn { get; init; }
 }

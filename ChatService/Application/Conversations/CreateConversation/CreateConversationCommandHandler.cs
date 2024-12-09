@@ -18,7 +18,9 @@ internal sealed class CreateConversationCommandHandler : ICommandHandler<CreateC
 
     public async Task<Result<string>> Handle(CreateConversationCommand request, CancellationToken cancellationToken)
     {
-        var conversation = Conversation.Create(request.roomId, request.participants, request.isGroup, _dateTimeProvider.UtcNow);
+        var isGroup = request.roomId is not null && request.roomId > 0 ? true : false;
+
+        var conversation = Conversation.Create(request.roomId, request.participants, isGroup, _dateTimeProvider.UtcNow);
 
         await _conversationRepository.AddAsync(conversation);
 

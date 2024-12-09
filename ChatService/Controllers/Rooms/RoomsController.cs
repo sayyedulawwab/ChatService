@@ -21,7 +21,7 @@ public class RoomsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get([FromRoute] long id)
+    public async Task<IActionResult> Get(long id)
     {
         var query = new GetRoomQuery(id);
 

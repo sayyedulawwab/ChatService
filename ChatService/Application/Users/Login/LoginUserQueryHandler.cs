@@ -38,6 +38,7 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
 
 
         var result = _jwtService.GetAccessToken(
+            user.Name,
             request.email,
             user.Id);
 

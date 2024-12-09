@@ -1,78 +1,91 @@
 ﻿using ChatService.Application.Abstractions.Caching;
-using ChatService.Domain.Users;
+using ChatService.Application.Conversations.CreateConversation;
+using MediatR;
 using Microsoft.AspNetCore.SignalR;
-using StackExchange.Redis;
 
 namespace ChatService.Hubs;
 
 public class ChatHub : Hub
 {
     private readonly ICacheRepository _cacheRepository;
+    private readonly ISender _sender;
 
-    public ChatHub(ICacheRepository cacheRepository)
+    public ChatHub(ICacheRepository cacheRepository, ISender sender)
     {
         _cacheRepository = cacheRepository;
+        _sender = sender;
     }
 
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        // Retrieve the cached connection information
+        var cachedConnection = await _cacheRepository.GetAsync<UserConnection>($"connection-{Context.ConnectionId}");
+        if (cachedConnection is not null)
+        {
+            // Clean up the cache and notify the group
+            await _cacheRepository.RemoveAsync($"connection-{Context.ConnectionId}");
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, cachedConnection.roomId);
+            await Clients.Group(cachedConnection.roomId)
+                         .SendAsync("UserLeft", cachedConnection.username);
+        }
+        await base.OnDisconnectedAsync(exception);
+    }
 
     public async Task JoinSpecificChatRoom(UserConnection connection)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, connection.ChatRoom);
+        // Add the connection to the group and cache the user details
+        await Groups.AddToGroupAsync(Context.ConnectionId, connection.roomId);
+        await _cacheRepository.SetAsync($"connection-{Context.ConnectionId}", connection, TimeSpan.FromHours(1));
 
-        await _cacheRepository.SetAsync($"connection-{Context.ConnectionId}", connection, null);
-        await _cacheRepository.SetAsync($"username-{connection.Username}", Context.ConnectionId, null);
-
-        await Clients.Group(connection.ChatRoom).SendAsync("JoinSpecificChatRoom", "admin", $"{connection.Username} has joined");
+        // Notify group members about the new user
+        await Clients.Group(connection.roomId)
+                     .SendAsync("UserJoined", "admin", $"{connection.username} has joined");
     }
 
-    public async Task SendMessage(string message)
+    public async Task SendMessage(string conversationId, string senderId, string content)
     {
+        // Fetch the cached connection details
         var cachedConnection = await _cacheRepository.GetAsync<UserConnection>($"connection-{Context.ConnectionId}");
-
-        if (cachedConnection is not null)
+        if (cachedConnection is null)
         {
-            var chatMessage = new
-            {
-                Username = cachedConnection.Username,
-                Message = message,
-                Timestamp = DateTime.UtcNow
-            };
-
-            // Add message to chat room history
-            await _cacheRepository.AddToListAsync($"chatroom-{cachedConnection.ChatRoom}", chatMessage);
-
-
-            await Clients.Group(cachedConnection.ChatRoom).SendAsync("ReceiveSpecificMessage", cachedConnection.Username, message);
+            await Clients.Caller.SendAsync("Error", "User not in any chat room.");
+            return;
         }
-    }
 
-    //public async Task<List<object>> GetChatHistory(string chatRoom)
-    //{
-    //    // Fetch chat history for the room
-    //    return await _cacheRepository.GetListAsync<object>($"chatroom-{chatRoom}");
-    //}
+        // Prepare the message and cache it in the room's chat history
+        var message = new
+        {
+            Username = cachedConnection.username,
+            Message = content,
+            Timestamp = DateTime.UtcNow
+        };
+        await _cacheRepository.AddToListAsync($"room-{cachedConnection.roomId}", message);
+
+        // Persist the message to the database
+        var command = new AddMessageCommand(conversationId, Convert.ToInt64(senderId), content);
+        await _sender.Send(command);
+
+        // Broadcast the message to the group
+        await Clients.Group(cachedConnection.roomId)
+                     .SendAsync("ReceiveMessage", cachedConnection.username, content);
+    }
 
     public async Task Typing(string chatRoom, string username)
     {
         // Store typing state with an expiration
-        //await _cacheRepository.SetAsync($"typing-{chatRoom}-{username}", true, TimeSpan.FromSeconds(3));
-
         await Clients.Group(chatRoom).SendAsync("UserTyping", username);
     }
 
     public async Task Reconnect(string connectionId)
     {
-        var state = await _cacheRepository.GetAsync<UserConnection>($"connection-{connectionId}");
-        if (state is not null)
+        // Retrieve the cached connection for the previous connectionId
+        var cachedConnection = await _cacheRepository.GetAsync<UserConnection>($"connection-{connectionId}");
+        if (cachedConnection is not null)
         {
-            var username = state.Username;
-            var chatRoom = state.ChatRoom;
-
-            // Add the connection back to the group
-            await Groups.AddToGroupAsync(connectionId, chatRoom);
-
-            // Notify others in the group
-            await Clients.Group(chatRoom).SendAsync("UserReconnected", username, $"{username} has reconnected");
+            // Add the new connection to the group and notify others
+            await Groups.AddToGroupAsync(Context.ConnectionId, cachedConnection.roomId);
+            await Clients.Group(cachedConnection.roomId)
+                         .SendAsync("UserReconnected", cachedConnection.username, $"{cachedConnection.username} has reconnected");
         }
     }
 
