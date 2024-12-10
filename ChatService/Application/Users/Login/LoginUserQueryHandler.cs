@@ -47,7 +47,7 @@ internal sealed class LoginUserQueryHandler : IQueryHandler<LoginUserQuery, Acce
             return Result.Failure<AccessTokenResponse>(UserErrors.InvalidCredentials);
         }
 
-        return new AccessTokenResponse(result.Value);
+        return new AccessTokenResponse(result.Value, user.Name);
     }
 
 }

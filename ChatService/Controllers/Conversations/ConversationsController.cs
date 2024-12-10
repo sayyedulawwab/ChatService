@@ -52,18 +52,4 @@ public class ConversationsController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpGet("history/{roomId}")]
-    public async Task<IActionResult> GetChatHistory(string roomId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
-    {
-        var query = new GetMessagesByConversationIdQuery(roomId);
-
-        var result = await _sender.Send(query);
-
-        if (result.IsFailure)
-        {
-            return result.Error.ToActionResult();
-        }
-
-        return Ok(result.Value);
-    }
 }
