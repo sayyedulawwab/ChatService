@@ -42,7 +42,7 @@ public class ChatHub : Hub
                      .SendAsync("UserJoined", "admin", $"{connection.username} has joined");
     }
 
-    public async Task SendMessage(string conversationId, string senderId, string content)
+    public async Task SendMessage(string roomId, string senderId, string content)
     {
         // Fetch the cached connection details
         var cachedConnection = await _cacheRepository.GetAsync<UserConnection>($"connection-{Context.ConnectionId}");
@@ -62,7 +62,7 @@ public class ChatHub : Hub
         await _cacheRepository.AddToListAsync($"room-{cachedConnection.roomId}", message);
 
         // Persist the message to the database
-        var command = new AddMessageCommand(conversationId, Convert.ToInt64(senderId), content);
+        var command = new AddMessageCommand(Convert.ToInt64(roomId), Convert.ToInt64(senderId), content);
         await _sender.Send(command);
 
         // Broadcast the message to the group
