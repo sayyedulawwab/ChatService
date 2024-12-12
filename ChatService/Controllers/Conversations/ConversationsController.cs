@@ -1,6 +1,5 @@
 ﻿using ChatService.Application.Conversations.CreateConversation;
 using ChatService.Application.Conversations.GetConversationByRoomId;
-using ChatService.Application.Conversations.GetMessagesByConversationId;
 using ChatService.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

@@ -2,7 +2,9 @@
 using ChatService.Application.Abstractions.Clock;
 using ChatService.Application.Abstractions.Messaging;
 using ChatService.Domain.Abstractions;
+using ChatService.Domain.Conversations;
 using ChatService.Domain.Rooms;
+using ChatService.Infrastructure.Repositories;
 
 namespace ChatService.Application.Rooms.CreateRoom;
 

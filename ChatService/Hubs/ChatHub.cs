@@ -70,23 +70,10 @@ public class ChatHub : Hub
                      .SendAsync("ReceiveMessage", cachedConnection.username, content);
     }
 
-    public async Task Typing(string chatRoom, string username)
+    public async Task Typing(string roomId, string username)
     {
         // Store typing state with an expiration
-        await Clients.Group(chatRoom).SendAsync("UserTyping", username);
-    }
-
-    public async Task Reconnect(string connectionId)
-    {
-        // Retrieve the cached connection for the previous connectionId
-        var cachedConnection = await _cacheRepository.GetAsync<UserConnection>($"connection-{connectionId}");
-        if (cachedConnection is not null)
-        {
-            // Add the new connection to the group and notify others
-            await Groups.AddToGroupAsync(Context.ConnectionId, cachedConnection.roomId);
-            await Clients.Group(cachedConnection.roomId)
-                         .SendAsync("UserReconnected", cachedConnection.username, $"{cachedConnection.username} has reconnected");
-        }
+        await Clients.Group(roomId).SendAsync("UserTyping", username);
     }
 
 }
