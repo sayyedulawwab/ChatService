@@ -1,7 +1,14 @@
 ﻿using ChatService.Application.Abstractions.Caching;
 using ChatService.Application.Conversations.CreateConversation;
+using ChatService.Infrastructure.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ChatService.Hubs;
 
@@ -9,11 +16,62 @@ public class ChatHub : Hub
 {
     private readonly ICacheRepository _cacheRepository;
     private readonly ISender _sender;
+    private readonly JwtOptions _jwtOptions;
 
-    public ChatHub(ICacheRepository cacheRepository, ISender sender)
+    public ChatHub(ICacheRepository cacheRepository, ISender sender, IOptions<JwtOptions> jwtOptions)
     {
         _cacheRepository = cacheRepository;
         _sender = sender;
+        _jwtOptions = jwtOptions.Value;
+    }
+
+    public override async Task OnConnectedAsync()
+    {
+        var token = Context.GetHttpContext()?.Request.Query["access_token"].ToString();
+
+        if (string.IsNullOrEmpty(token))
+        {
+            await Clients.Caller.SendAsync("Error", "Authentication failed: No token provided");
+            Context.Abort();
+            return;
+        }
+
+        if (!ValidateJwtToken(token))
+        {
+            await Clients.Caller.SendAsync("Error", "Authentication failed: Invalid token");
+            Context.Abort();
+            return;
+        }
+
+        await base.OnConnectedAsync();
+    }
+
+    private bool ValidateJwtToken(string token)
+    {
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtOptions.SecretKey);
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidIssuer = _jwtOptions.Issuer,
+                ValidAudience = _jwtOptions.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+
+            SecurityToken validatedToken;
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+
+            return principal.Identity.IsAuthenticated;
+            
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)

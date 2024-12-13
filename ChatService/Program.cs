@@ -55,6 +55,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -69,10 +72,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
+app.UseCors("ChatClient");
+
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chat");
-
-app.UseCors("ChatClient");
 
 app.Run();
