@@ -1,7 +1,8 @@
 ﻿using ChatService.Application.Abstractions.Auth;
-using ChatService.Application.Abstractions.Behaviors;
 using ChatService.Application.Abstractions.Caching;
 using ChatService.Application.Abstractions.Clock;
+using ChatService.Application.Abstractions.Decorators;
+using ChatService.Application.Abstractions.Messaging;
 using ChatService.Domain.Abstractions;
 using ChatService.Domain.Conversations;
 using ChatService.Domain.Rooms;
@@ -24,12 +25,23 @@ public static class DependencyInjection
     {
         services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
-        services.AddMediatR(configuration =>
-        {
-            configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
-            configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
+        services.Scan(scan => scan.FromAssembliesOf(typeof(DependencyInjection))
+            .AddClasses(classes => classes.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(ValidationDecorator.CommandBaseHandler<>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
+
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingDecorator.CommandBaseHandler<>));
+        services.TryDecorate(typeof(ICommandHandler<,>), typeof(LoggingDecorator.CommandHandler<,>));
+        services.TryDecorate(typeof(IQueryHandler<,>), typeof(LoggingDecorator.QueryHandler<,>));
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 

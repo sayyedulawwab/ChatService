@@ -1,7 +1,7 @@
 ﻿using ChatService.Application.Abstractions.Caching;
+using ChatService.Application.Abstractions.Messaging;
 using ChatService.Application.Conversations.CreateConversation;
 using ChatService.Infrastructure.Auth;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -15,13 +15,13 @@ namespace ChatService.Hubs;
 public class ChatHub : Hub
 {
     private readonly ICacheRepository _cacheRepository;
-    private readonly ISender _sender;
+    private readonly ICommandHandler<AddMessageCommand, string> _addMessageHandler;
     private readonly JwtOptions _jwtOptions;
 
-    public ChatHub(ICacheRepository cacheRepository, ISender sender, IOptions<JwtOptions> jwtOptions)
+    public ChatHub(ICacheRepository cacheRepository, ICommandHandler<AddMessageCommand, string> addMessageHandler, IOptions<JwtOptions> jwtOptions)
     {
         _cacheRepository = cacheRepository;
-        _sender = sender;
+        _addMessageHandler = addMessageHandler;
         _jwtOptions = jwtOptions.Value;
     }
 
@@ -121,7 +121,7 @@ public class ChatHub : Hub
 
         // Persist the message to the database
         var command = new AddMessageCommand(Convert.ToInt64(roomId), Convert.ToInt64(senderId), content);
-        await _sender.Send(command);
+        await _addMessageHandler.Handle(command, Context.ConnectionAborted);
 
         // Broadcast the message to the group
         await Clients.Group(cachedConnection.roomId)

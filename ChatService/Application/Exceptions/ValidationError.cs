@@ -1,3 +1,17 @@
-﻿namespace ChatService.Application.Exceptions;
+﻿using ChatService.Domain.Abstractions;
 
-public sealed record ValidationError(string PropertyName, string ErrorMessage);
+namespace ChatService.Application.Exceptions;
+
+public sealed record ValidationError : Error
+{
+    public ValidationError(Error[] errors)
+        : base(
+            "Validation.General",
+            "One or more validation errors occurred",
+            HttpResponseStatusCodes.BadRequest)
+    {
+        Errors = errors;
+    }
+
+    public Error[] Errors { get; }
+}

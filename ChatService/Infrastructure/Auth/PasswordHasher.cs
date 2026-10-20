@@ -19,8 +19,7 @@ internal sealed class PasswordHasher : IPasswordHasher
 
     public string Hash(string password, string salt)
     {
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, Convert.FromBase64String(salt), Iterations, HashAlgorithmName.SHA256);
-        byte[] hash = pbkdf2.GetBytes(KeySize);
+        byte[] hash = Rfc2898DeriveBytes.Pbkdf2(password, Convert.FromBase64String(salt), Iterations, HashAlgorithmName.SHA256, KeySize);
 
         var hashData = new PasswordHashData
         {
@@ -36,8 +35,7 @@ internal sealed class PasswordHasher : IPasswordHasher
     {
         var hashData = PasswordHashData.Parse(storedPasswordHash);
 
-        using var pbkdf2 = new Rfc2898DeriveBytes(enteredPassword, Convert.FromBase64String(hashData.Salt), hashData.Iterations, HashAlgorithmName.SHA256);
-        byte[] enteredPasswordHash = pbkdf2.GetBytes(KeySize);
+        byte[] enteredPasswordHash = Rfc2898DeriveBytes.Pbkdf2(enteredPassword, Convert.FromBase64String(hashData.Salt), hashData.Iterations, HashAlgorithmName.SHA256, KeySize);
 
         // Verify if the computed hash matches the stored hash
         return hashData.Hash == Convert.ToBase64String(enteredPasswordHash);

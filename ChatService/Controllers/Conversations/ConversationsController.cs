@@ -1,7 +1,8 @@
-﻿using ChatService.Application.Conversations.CreateConversation;
+﻿using ChatService.Application.Abstractions.Messaging;
+using ChatService.Application.Conversations;
+using ChatService.Application.Conversations.CreateConversation;
 using ChatService.Application.Conversations.GetConversationByRoomId;
 using ChatService.Extensions;
-using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,21 +12,14 @@ namespace ChatService.Controllers.Conversations;
 [Authorize]
 public class ConversationsController : ControllerBase
 {
-    private readonly ISender _sender;
-
-    public ConversationsController(ISender sender)
-    {
-        _sender = sender;
-    }
-
     [HttpPost]
-    public async Task<IActionResult> CreateConversation(CreateConversationRequest request)
+    public async Task<IActionResult> CreateConversation(CreateConversationRequest request, ICommandHandler<CreateConversationCommand, string> handler, CancellationToken cancellationToken)
     {
         var command = new CreateConversationCommand(
             request.roomId,
             request.participants);
 
-        var result = await _sender.Send(command);
+        var result = await handler.Handle(command, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -34,14 +28,14 @@ public class ConversationsController : ControllerBase
 
         return Ok(result.Value);
     }
-    
+
     [HttpGet("{roomId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetConversation(long roomId, [FromQuery] int page, [FromQuery] int pageSize)
+    public async Task<IActionResult> GetConversation(long roomId, [FromQuery] int page, [FromQuery] int pageSize, IQueryHandler<GetConversationByRoomIdQuery, ConversationResponse> handler, CancellationToken cancellationToken)
     {
         var query = new GetConversationByRoomIdQuery(roomId, page, pageSize);
 
-        var result = await _sender.Send(query);
+        var result = await handler.Handle(query, cancellationToken);
 
         if (result.IsFailure)
         {
